@@ -10,6 +10,8 @@ RUN wget -qO- https://github.com/vulpemventures/electrs/releases/download/v0.4.1
   rm -rf /tmp
 
 EXPOSE 3002
+EXPOSE 60401
+
 STOPSIGNAL SIGINT
 
 ENTRYPOINT ["/build/electrs"]
