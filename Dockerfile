@@ -1,13 +1,21 @@
+FROM rust:latest AS builder
+
+RUN apt-get update
+RUN apt-get install -y clang cmake
+
+RUN git clone https://github.com/blockstream/electrs
+
+WORKDIR /electrs
+
+RUN cargo build --features liquid --release --bin electrs
+
 FROM ubuntu:18.04
 
-ARG version
+WORKDIR /build
 
-RUN apt-get update && apt-get install --yes wget
+COPY --from=builder /electrs/target/release/electrs /build
 
-RUN mkdir -p /tmp /build 
-RUN wget -qO- https://github.com/vulpemventures/electrs/releases/download/v0.4.1-bin/electrs.tar.gz | tar -xvz -C /tmp && \
-  mv /tmp/${version}/electrs /build && \
-  rm -rf /tmp
+RUN ls -la
 
 EXPOSE 3002
 EXPOSE 60401
