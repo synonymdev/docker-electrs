@@ -9,7 +9,7 @@ WORKDIR /electrs
 
 RUN cargo build --release --bin electrs
 
-FROM ubuntu:18.04
+FROM ubuntu:19.04
 
 WORKDIR /build
 
