@@ -7,7 +7,7 @@ RUN git clone https://github.com/blockstream/electrs
 
 WORKDIR /electrs
 
-RUN cargo build --release --bin electrs
+RUN cargo build --features liquid --release --bin electrs
 
 FROM ubuntu:18.04
 
