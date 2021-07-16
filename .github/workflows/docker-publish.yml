@@ -1,0 +1,80 @@
+name: Docker
+
+on:
+  push:
+    # Publish `master` as Docker `latest` image.
+    branches:
+      - master
+
+env:
+  # TODO: Change variable to your image's name.
+  BITCOIN_IMAGE_NAME: electrs
+  LIQUID_IMAGE_NAME: electrs-liquid
+  COMMIT: abfbce73eb0504630a09f1e6599114ef4fa25bda
+
+jobs:
+  # Push image to GitHub Packages.
+  # See also https://docs.docker.com/docker-hub/builds/
+  bitcoin:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build . --file ./$COMMIT/Dockerfile --tag $BITCOIN_IMAGE_NAME
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        run: |
+          IMAGE_ID=ghcr.io/vulpemventures/$BITCOIN_IMAGE_NAME
+
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo COMMIT=$COMMIT
+
+          docker tag $BITCOIN_IMAGE_NAME $IMAGE_ID:$COMMIT
+          docker push $IMAGE_ID:$COMMIT
+
+          docker tag $BITCOIN_IMAGE_NAME $IMAGE_ID:latest
+          docker push $IMAGE_ID:latest
+
+  liquid:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build . --file ./$COMMIT/Dockerfile.liquid --tag $LIQUID_IMAGE_NAME
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        run: |
+          IMAGE_ID=ghcr.io/vulpemventures/$LIQUID_IMAGE_NAME
+
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo COMMIT=$COMMIT
+
+          docker tag $LIQUID_IMAGE_NAME $IMAGE_ID:$COMMIT
+          docker push $IMAGE_ID:$COMMIT
+
+          docker tag $LIQUID_IMAGE_NAME $IMAGE_ID:latest
+          docker push $IMAGE_ID:latest
